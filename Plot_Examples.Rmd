@@ -1,0 +1,512 @@
+---
+title: "Plot_Examples"
+author: "Braden Anderson"
+date: "11/21/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+source("./Plotting_Functions.R")
+df <- read.csv("./Practice_House_Data.csv")
+head(df)
+
+```
+
+
+
+# Scatterplot Examples
+
+```{r}
+
+# Basic scatter plot of SalePrice vs GrLivArea
+# Neighborhood column filtered to three neighborhoods of interest.
+interesting_neighborhoods <- c("NAmes", "Edwards", "BrkSide")
+
+plot_scatter(data=df, y_var="SalePrice", x_var="GrLivArea", 
+             filter_column="Neighborhood", keep_values=interesting_neighborhoods)
+
+```
+
+
+```{r}
+
+
+
+interesting_neighborhoods <- c("NAmes", "Edwards", "BrkSide")
+
+# Basic scatter plot of SalePrice vs GrLivArea
+# Neighborhood column filtered to three neighborhoods of interest.
+# Points colored based on neighborhood column, 
+# Regression line added
+plot_scatter(data=df, 
+             y_var="SalePrice", 
+             x_var="GrLivArea", 
+             filter_column="Neighborhood", 
+             keep_values=interesting_neighborhoods, 
+             shade_var = "Neighborhood", 
+             show_regression=TRUE, 
+             reg_table=FALSE)
+
+```
+
+
+```{r echo=FALSE,  fig.width=8,fig.height=4}
+
+# NOTE: this plot is way too busy but gives an example of what several of the options are.
+
+interesting_neighborhoods <- c("NAmes", "Edwards", "BrkSide")
+
+# Basic scatter plot of SalePrice vs GrLivArea
+# Neighborhood column filtered to three neighborhoods of interest.
+# Points colored based on OverallQuality column, 
+# Points given different shapes based on Neighborhood column
+# Regression line added, with table of regression coefficients included
+
+plot_scatter(data=df, 
+             y_var="SalePrice", 
+             x_var="GrLivArea", 
+             filter_column="Neighborhood", 
+             keep_values= interesting_neighborhoods,
+             shade_var = "OverallQual",
+             shape_var = "Neighborhood",
+             show_regression=TRUE, 
+             reg_table=TRUE, 
+             conf_level=0.98, 
+             round_digits=5, 
+             table_loc="lower_right")
+
+
+```
+
+# Residual QQ Plot Examples
+
+```{r}
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+plot_residual_qq(fit, 
+                 residual_type="externally_studentized", 
+                 add_line=TRUE, 
+                 flag_largest_resid=TRUE, 
+                 flag_nlargest=4)
+
+```
+
+
+```{r}
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+plot_residual_qq(fit, 
+                 residual_type="deleted", 
+                 add_line=TRUE, 
+                 flag_largest_resid=TRUE, 
+                 flag_nlargest=4)
+
+```
+
+
+```{r}
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+plot_residual_qq(fit, 
+                 residual_type="regular", 
+                 add_line=TRUE, 
+                 flag_largest_resid=TRUE, 
+                 flag_nlargest=4)
+
+```
+
+
+# Residual Histogram Examples
+
+```{r}
+
+# NOTE: it is easy to define bins using binwidth for the studentized residuals, because
+#       we know the residuals will all be relatively smaller numbers. Defining number of bins
+#       rather than binwidth seems to be easier for the standard residuals.
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+plot_residual_histogram(fit=fit, 
+                        residual_type="externally_studentized", 
+                        binwidth=0.1, 
+                        overlay_normal=TRUE, 
+                        normal_linetype="solid", 
+                        normal_linecolor="#00FFFF")
+
+
+```
+
+
+```{r}
+
+# NOTE: it is easy to define bins using binwidth for the studentized residuals, because
+#       we know the residuals will all be relatively smaller numbers. Defining number of bins
+#       rather than binwidth seems to be easier for the standard residuals.
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+plot_residual_histogram(fit=fit, 
+                        residual_type="regular", 
+                        num_bins=100, 
+                        overlay_normal=TRUE, 
+                        normal_linetype="dashed", 
+                        normal_linecolor="black", 
+                        normal_linesize=1)
+
+
+```
+
+# Residual Plot Examples (residuals vs fitted values)
+
+```{r}
+
+# NOTE: For studentized residuals "extreme_thresh_std" is used to flag extreme values, and represents the number
+#       of standard deviations away from zero a residual needs to be in order to be flag. Since it is somewhat less
+#       intuitive to come up with a numeric threshold for regular residuals, for these values we instead use the parameter
+#       extreme_thresh_regular which represents the NUMBER of residuals to flag. For example, extreme_thresh_regular=3 will
+#       flag the top three most extreme residuals.
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+plot_residuals(fit, 
+               residual_type="externally_studentized", 
+               plot_zero_hline=TRUE, 
+               extreme_thresh_std=3.5,
+               flag_extreme_values=TRUE, 
+               id_extreme_values=TRUE)
+
+
+```
+
+
+```{r}
+
+# NOTE: For studentized residuals "extreme_thresh_std" is used to flag extreme values, and represents the number
+#       of standard deviations away from zero a residual needs to be in order to be flag. Since it is somewhat less
+#       intuitive to come up with a numeric threshold for regular residuals, for these values we instead use the parameter
+#       extreme_thresh_regular which represents the NUMBER of residuals to flag. For example, extreme_thresh_regular=3 will
+#       flag the top three most extreme residuals.
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+plot_residuals(fit, 
+               residual_type="deleted", 
+               plot_zero_hline=TRUE, 
+               extreme_thresh_regular=5, 
+               flag_extreme_values=TRUE, 
+               id_extreme_values=TRUE)
+
+
+```
+
+# Case Statistics vs Observation Number Section
+
+
+```{r}
+
+# NOTE: All case statistics have an associated parameter that either ends in "_rot" or "_rotm".
+#       "rot" extensions stand for "rule of thumb", and indicate the baseline value for what defines an "extreme observation"
+#        that we may want to flag.
+#       "rotm" extensions stand for "rule of thumb multiplier", and indicate that the value is not the rule of thumb by itself, but
+#       is a multiplier in some equation used to calculate the rule of thumb.
+#
+#       In both cases, we can modify how "extreme" an observation needs to be, in order for it to be flagged, by adjusting the
+#       associated rot or rotm parameter.
+#
+
+# NOTE: All case statistics have been coded to have two names (a long name and a short name), and the plot_case_stat_vs_obs function'
+#       will work fine when setting the case parameter to either of the two valid names.
+
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+plot_case_stat_vs_obs(fit, 
+                      case="cook", 
+                      cook_rot=1, 
+                      flag_extreme=TRUE, 
+                      max_flagged=5)
+
+
+```
+
+
+
+```{r}
+
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+plot_case_stat_vs_obs(fit, 
+                      case="leverage", 
+                      leverage_rotm=10, 
+                      flag_extreme=TRUE, 
+                      max_flagged=5)
+
+
+```
+
+
+
+
+```{r}
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+# NOTE: If a point is flagged with std_rotm=0.02, that means the estimate of the shared standard deviation (RMSE)
+#       changed by more than 2% when the point was deleted.
+
+plot_case_stat_vs_obs(fit, 
+                      case="deleted_standard_deviation", 
+                      std_rotm=0.02, 
+                      flag_extreme=TRUE, 
+                      max_flagged=5)
+
+
+```
+
+
+
+```{r}
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+# NOTE: If a point is flagged with std_rotm=0.02, that means the estimate of the shared standard deviation (RMSE)
+#       changed by more than 2% when the point was deleted.
+
+plot_case_stat_vs_obs(fit, 
+                      case="DFFITS", 
+                      dffit_rotm=60000, 
+                      flag_extreme=TRUE, 
+                      max_flagged=5)
+
+
+```
+
+
+
+```{r}
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+plot_case_stat_vs_obs(fit, 
+                      case="stu.res", 
+                      resid_rot=3, 
+                      flag_extreme=TRUE, 
+                      max_flagged=NULL)
+
+
+```
+
+# Partial Residual Plots
+
+```{r}
+
+df <- read.csv("./Practice_House_Data.csv")
+xvars <- c("Total_SF", "Neighborhood", "GarageArea", "OverallQual")
+
+plot_partial_residuals(df=df, 
+                       analysis_var="Total_SF", 
+                       explanatory_vars=xvars, 
+                       identify_obs=TRUE)
+
+# NOTE: This looks totally crazy, and obviously isn't useful (yet). However the most extreme points will tend to be the ones
+#       farther out in space, where we can easily read the observation number. Based on those numbers, we can filter to only
+#       display observation numbers we are interested in (see next plot).
+
+```
+
+
+
+```{r}
+
+df <- read.csv("./Practice_House_Data.csv")
+xvars <- c("Total_SF", "Neighborhood", "GarageArea", "OverallQual")
+
+plot_partial_residuals(df=df, 
+                       analysis_var="Total_SF", 
+                       explanatory_vars=xvars, 
+                       identify_obs=c(1299, 524, 1183, 692))
+
+# Much better! (see note above).
+
+```
+
+
+```{r}
+
+# NOTE: We can create an augmented partial residual plot instead, by setting augmented=TRUE, (see statistical slueth page 332).
+
+df <- read.csv("./Practice_House_Data.csv")
+xvars <- c("Total_SF", "Neighborhood", "GarageArea", "OverallQual")
+
+plot_partial_residuals(df=df, 
+                       analysis_var="Total_SF", 
+                       explanatory_vars=xvars, 
+                       identify_obs=c(1299, 524, 1183, 692), 
+                       augmented=TRUE)
+
+
+```
+
+
+
+
+```{r}
+
+# NOTE: We can experiment to how the least-square fit of the partial-residual vs the x-variable will change based on the removal
+#       of one or more points. See below for an example, where the turquoise line is fit with points 524 and 1299 removed, while
+#       the red line was fit with all of the data. (This plot was inspired by the statistical sleuth  page 357, display 12.5)
+
+df <- read.csv("./Practice_House_Data.csv")
+xvars <- c("Total_SF", "Neighborhood", "GarageArea", "OverallQual")
+
+plot_partial_residuals(df=df, 
+                       analysis_var="Total_SF", 
+                       explanatory_vars=xvars, 
+                       identify_obs=c(1299, 524, 1183, 692), 
+                       augmented=TRUE,
+                       add_pt_removal_line=c(1299, 524))
+
+
+```
+
+
+```{r}
+
+
+df <- read.csv("./Practice_House_Data.csv")
+xvars <- c("Total_SF", "Neighborhood", "GarageArea", "OverallQual")
+
+plot_partial_residuals(df=df, 
+                       analysis_var="Total_SF", 
+                       explanatory_vars=xvars, 
+                       identify_obs=c(1299, 524, 1183, 692), 
+                       augmented=TRUE,
+                       add_pt_removal_line=c(1299, 524), 
+                       add_smooth_fit=TRUE, 
+                       smooth_method="loess")
+
+# NOTE: Getting a little crazy now, but this plot shows we can also fit a smooth fit to the data (loess or any other fit accepted
+#       by geom_smooth). Wow, point 1299 is like a magnet for the loess curve.
+#
+#       We can also shade points by any case statistic (leverage, cooks d, residual, etc) --> see next plot!
+
+
+```
+
+```{r}
+
+
+df <- read.csv("./Practice_House_Data.csv")
+xvars <- c("Total_SF", "Neighborhood", "GarageArea", "OverallQual")
+
+plot_partial_residuals(df=df, 
+                       analysis_var="Total_SF", 
+                       explanatory_vars=xvars, 
+                       identify_obs=c(1299, 524, 1183, 692), 
+                       augmented=TRUE,
+                       shade_by_case = "leverage", 
+                       alpha=0.6)
+
+# NOTE: Shading by leverage!
+#
+
+
+```
+
+```{r}
+
+
+df <- read.csv("./Practice_House_Data.csv")
+xvars <- c("Total_SF", "Neighborhood", "GarageArea", "OverallQual")
+
+plot_partial_residuals(df=df, 
+                       analysis_var="Total_SF", 
+                       explanatory_vars=xvars, 
+                       identify_obs=c(1299, 524, 1183, 692), 
+                       augmented=TRUE,
+                       shade_by_case = "cooks_d", 
+                       alpha=0.6)
+
+# NOTE: Shading by cooks D!
+#
+
+
+```
+
+
+# Residuals vs Leverage
+
+```{r}
+
+df <- read.csv("./Practice_House_Data.csv")
+fit <- lm(SalePrice~GrLivArea, data=df)
+
+# NOTE: resid_line_threshold=2 places horizontal lines indicating where +/- 2 standard deviations from zero is
+#
+#       leverage_line_multipler=3 places a vertical line where the leverage is 3x the average leverage.
+#
+#       max_points_flagged=6 indicates the 6 points with the highest cooks D, that exceed the leverage and residual 
+#       threshold lines will be flagged.
+
+plot_residual_vs_leverage(fit, 
+                          residual_type="externally_studentized", 
+                          leverage_line_multiplier=3, 
+                          resid_line_threshold=2, 
+                          max_points_flagged=6)
+
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+
+```{r}
+
+
+
+
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+
+```{r}
+
+
+
+
+```
